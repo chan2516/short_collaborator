@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:urlshortener}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USER:urlshortener}
+    password: ${DB_PASSWORD:changeme}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+app:
+  base-url: ${APP_BASE_URL:http://besturlshortener.com}

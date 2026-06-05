@@ -1,0 +1,17 @@
+[Unit]
+Description=Best URL Shortener (Spring Boot JAR)
+After=network.target
+
+[Service]
+Type=simple
+User=urlshortener
+Group=urlshortener
+WorkingDirectory=/opt/url-shortener
+Environment=JAVA_OPTS=-Xms256m -Xmx512m
+Environment=APP_BASE_URL=http://besturlshortener.com
+ExecStart=/usr/bin/java $JAVA_OPTS -jar /opt/url-shortener/url-shortener-1.0.0.jar
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

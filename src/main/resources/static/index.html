@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best URL Shortener</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --accent: #38bdf8;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --success: #4ade80;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: "Segoe UI", system-ui, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+            min-height: 100vh;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 560px;
+            background: var(--card);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+        }
+
+        form { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+
+        input[type="url"] {
+            flex: 1;
+            padding: 0.85rem 1rem;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            background: #0f172a;
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="url"]:focus { border-color: var(--accent); }
+
+        button {
+            padding: 0.85rem 1.5rem;
+            background: var(--accent);
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: opacity 0.2s;
+        }
+
+        button:hover { opacity: 0.9; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .result {
+            display: none;
+            background: #0f172a;
+            border-radius: 8px;
+            padding: 1.25rem;
+            border: 1px solid #334155;
+        }
+
+        .result.visible { display: block; }
+
+        .result label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--muted);
+            margin-bottom: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .short-url {
+            color: var(--success);
+            font-size: 1.1rem;
+            word-break: break-all;
+            margin-bottom: 1rem;
+        }
+
+        .short-url a { color: var(--success); text-decoration: none; }
+        .short-url a:hover { text-decoration: underline; }
+
+        .error {
+            color: #f87171;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error.visible { display: block; }
+
+        .stats {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Best URL Shortener</h1>
+        <p class="subtitle">Shorten links for your local network — fast, simple, private.</p>
+
+        <form id="shortenForm">
+            <input type="url" id="urlInput" placeholder="https://example.com/long-page" required>
+            <button type="submit" id="submitBtn">Shorten</button>
+        </form>
+
+        <p class="error" id="errorMsg"></p>
+
+        <div class="result" id="result">
+            <label>Your short link</label>
+            <div class="short-url">
+                <a id="shortLink" href="#" target="_blank"></a>
+            </div>
+            <div class="stats" id="stats"></div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('shortenForm');
+        const urlInput = document.getElementById('urlInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const result = document.getElementById('result');
+        const shortLink = document.getElementById('shortLink');
+        const stats = document.getElementById('stats');
+        const errorMsg = document.getElementById('errorMsg');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMsg.classList.remove('visible');
+            result.classList.remove('visible');
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/shorten', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: urlInput.value.trim() })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const message = data.detail || data.errors?.url || 'Failed to shorten URL';
+                    throw new Error(message);
+                }
+
+                shortLink.href = data.shortUrl;
+                shortLink.textContent = data.shortUrl;
+                stats.textContent = 'Code: ' + data.shortCode;
+                result.classList.add('visible');
+            } catch (err) {
+                errorMsg.textContent = err.message;
+                errorMsg.classList.add('visible');
+            } finally {
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

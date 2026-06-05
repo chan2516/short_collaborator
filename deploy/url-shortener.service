@@ -1,0 +1,22 @@
+[Unit]
+Description=Best URL Shortener (Spring Boot)
+After=network.target
+
+[Service]
+Type=simple
+User=urlshortener
+WorkingDirectory=/opt/url-shortener
+Environment=JAVA_OPTS=-Xms256m -Xmx512m
+Environment=SPRING_PROFILES_ACTIVE=prod
+Environment=APP_BASE_URL=http://besturlshortener.com
+Environment=DB_HOST=localhost
+Environment=DB_PORT=5432
+Environment=DB_NAME=urlshortener
+Environment=DB_USER=urlshortener
+Environment=DB_PASSWORD=changeme
+ExecStart=/usr/bin/java $JAVA_OPTS -jar /opt/url-shortener/url-shortener-1.0.0.jar
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
